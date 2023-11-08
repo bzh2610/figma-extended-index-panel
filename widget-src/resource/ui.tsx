@@ -79,7 +79,27 @@ export function makeListStrucutre(option: SettingData, indexData: indexItem[], s
 
         let otherLinkStructure;
 
-        if (row.otherEdit === true) {
+        console.log(row)
+        if(row.link) {
+            console.log("LINK PRESENT")
+            otherLinkStructure = (
+                <AutoLayout padding={10} width={180} height={"fill-parent"} horizontalAlignItems={"center"} verticalAlignItems={"center"}>
+                    <Text href={row.link} fontSize={12} fontWeight={500} fontFamily={"Gothic A1"} width={"fill-parent"} fill="#333">
+                        {row.link ? row.link.substring(0, 20) + "..." : "N.A"}
+                    </Text>
+                    <SVG
+                        src={pencli}
+                        onClick={(e) => {
+                            indexData[count].otherEdit = true;
+                            setIndexData(indexData);
+                        }}
+                    ></SVG>
+                </AutoLayout>
+            );
+        }
+        else if (row.otherEdit === true) {
+            console.log("OTHER EDIT PRESENT")
+
             otherLinkStructure = (
                 <AutoLayout padding={10} width={180} height={"fill-parent"} horizontalAlignItems={"center"} verticalAlignItems={"center"}>
                     <SVG src={linkIcon}></SVG>
@@ -108,7 +128,9 @@ export function makeListStrucutre(option: SettingData, indexData: indexItem[], s
                     />
                 </AutoLayout>
             );
-        } else {
+        } else{
+            console.log("LINK PRESENT")
+
             otherLinkStructure = (
                 <AutoLayout padding={10} width={180} height={"fill-parent"} horizontalAlignItems={"center"} verticalAlignItems={"center"}>
                     <Text href={row.other} fontSize={12} fontWeight={500} fontFamily={"Gothic A1"} width={"fill-parent"} fill="#333">
@@ -160,6 +182,7 @@ export function makeListStrucutre(option: SettingData, indexData: indexItem[], s
                     </Text>
                     <SVG src={arrowRight}></SVG>
                 </AutoLayout>
+                
 
                 {option.other === true ? otherLinkStructure : null}
 

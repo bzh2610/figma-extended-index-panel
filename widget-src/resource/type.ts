@@ -21,5 +21,6 @@ export interface indexItem {
     otherEdit: boolean;
     pageName: string;
     sectionName: string;
+    link: string;
     status: number;
 }

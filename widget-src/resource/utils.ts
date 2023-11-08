@@ -50,6 +50,7 @@ export function setPageList(figma: PluginAPI, settingData: SettingData, setSetti
 export function refresh(rowData: SettingData, indexData: indexItem[], setPageName: Function, setSectionName: Function, setUpdateData: Function, setWidgetStatus: Function, setIndexData: Function) {
     const data = rowData;
     const list: any[] = [];
+    console.log('refresh')
     const pageSelected = data.pageList.filter((page) => page.checked === true);
     let pageList: any = [];
     let childList: any[] = [];
@@ -59,7 +60,7 @@ export function refresh(rowData: SettingData, indexData: indexItem[], setPageNam
     if (pageSelected.length > 0) {
         pageList = [];
 
-        pageSelected.forEach((data) => {
+        pageSelected.forEach((data: PageItem) => {
             pageList.push(figma.getNodeById(data.id));
         });
     } else {
@@ -84,6 +85,7 @@ export function refresh(rowData: SettingData, indexData: indexItem[], setPageNam
 
     pageList.forEach((page: PageNode) => {
         childList = childList.concat(page.children);
+        console.log(childList);
     });
 
     if (data.target === "frameinsection") {
@@ -93,10 +95,11 @@ export function refresh(rowData: SettingData, indexData: indexItem[], setPageNam
     }
 
     childList = childList.filter((item) => item.type === typeName);
-
+    console.log(childList)
     if (data.target === "frameinsection") {
         childList.forEach((section) => {
             const targetChild = section.children.filter((row: any) => row.type === "FRAME");
+  
 
             targetChild.forEach((target: any) => {
                 list.push({
@@ -109,14 +112,30 @@ export function refresh(rowData: SettingData, indexData: indexItem[], setPageNam
             });
         });
     } else {
-        childList.forEach((target) => {
-            list.push({
-                id: target.id,
-                sectionName: "",
-                name: target.name,
-                type: target.type,
-                parent: target.parent,
-            });
+        childList.forEach((target: FrameNode) => {
+            let tn = target.findOne(n => n.type === "TEXT");
+            if(tn){
+                tn = tn as TextNode
+                console.log(tn.hyperlink)
+                list.push({
+                    id: target.id,
+                    sectionName: "",
+                    name: target.name,
+                    type: target.type,
+                    link: tn.hyperlink,
+                    parent: target.parent,
+                });
+            }else{
+                list.push({
+                    id: target.id,
+                    sectionName: "",
+                    name: target.name,
+                    type: target.type,
+                    parent: target.parent,
+                });
+            }
+
+            
         });
     }
 
@@ -137,6 +156,8 @@ export function refresh(rowData: SettingData, indexData: indexItem[], setPageNam
 export function listDataArrange(list: any[], indexData: indexItem[], setWidgetStatus: Function, setIndexData: Function) {
     if (list.length !== 0) {
         let data: indexItem[] = [];
+
+        console.log(indexData)
 
         if (indexData.length === 0) {
             // just add
@@ -162,6 +183,7 @@ export function listDataArrange(list: any[], indexData: indexItem[], setWidgetSt
                     name: item.name,
                     sectionName: item.sectionName,
                     pageName: pageName,
+                    link: indexData[0].link,
                     status: 0,
                     other: "",
                     otherEdit: true,
@@ -184,6 +206,7 @@ export function listDataArrange(list: any[], indexData: indexItem[], setWidgetSt
                     id: "",
                     name: "",
                     sectionName: "",
+                    link: '',
                     pageName: "",
                     status: 0,
                     other: "",
@@ -214,11 +237,15 @@ export function listDataArrange(list: any[], indexData: indexItem[], setWidgetSt
                 }
 
                 // @ts-ignore : IDE가 인식못함
-                if (hasItem === true) {
+              console.log(row.name)
+
+              console.log(row.link?.value)
+                if (hasItem) {
                     indexData[count] = {
                         id: data.id,
-                        name: data.name,
+                        name: row.name,
                         sectionName: data.sectionName,
+                        link: row.link?.value,
                         pageName: pageName,
                         status: data.status,
                         other: data.other,
@@ -229,6 +256,7 @@ export function listDataArrange(list: any[], indexData: indexItem[], setWidgetSt
                         id: row.id,
                         name: row.name,
                         sectionName: row.sectionName,
+                        link: data?.link,
                         pageName: pageName,
                         status: 0,
                         other: "",
